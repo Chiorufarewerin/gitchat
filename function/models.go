@@ -12,6 +12,8 @@ type Comment struct {
 	Author string `json:"author"`
 	Text   string `json:"text"`
 	Color  string `json:"color"`
+	Date   string `json:"date"`
+	Reply  string `json:"reply"`
 }
 
 type CommentConfig struct {

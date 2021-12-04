@@ -35,18 +35,9 @@ func getCommentConfig() (*CommentConfig, error) {
 }
 
 func writeCommentConfig(config *CommentConfig) error {
-	version, err := MakeJsonField("version", config.Version)
-	if err != nil {
-		return err
-	}
-	firstBlock, err := MakeJsonField("firstBlock", config.FirstBlock)
-	if err != nil {
-		return err
-	}
-	lastBlock, err := MakeJsonField("lastBlock", config.LastBlock)
-	if err != nil {
-		return err
-	}
+	version := MakeJsonField("version", config.Version)
+	firstBlock := MakeJsonField("firstBlock", config.FirstBlock)
+	lastBlock := MakeJsonField("lastBlock", config.LastBlock)
 
 	strFmt := fmt.Sprintf("{\n%s%s}\n", strings.Repeat("  %s,\n", 2), "  %s\n")
 	data := []byte(fmt.Sprintf(strFmt, version, firstBlock, lastBlock))
@@ -58,30 +49,20 @@ func generateCommentID(comment *Comment, config *CommentConfig) string {
 }
 
 func writeComment(comment *Comment, config *CommentConfig, append bool) error {
-	id, err := MakeJsonField("id", comment.ID)
-	if err != nil {
-		return err
-	}
-	author, err := MakeJsonField("author", comment.Author)
-	if err != nil {
-		return err
-	}
-	text, err := MakeJsonField("text", comment.Text)
-	if err != nil {
-		return err
-	}
-	color, err := MakeJsonField("color", comment.Color)
-	if err != nil {
-		return err
-	}
+	id := MakeJsonField("id", comment.ID)
+	author := MakeJsonField("author", comment.Author)
+	text := MakeJsonField("text", comment.Text)
+	color := MakeJsonField("color", comment.Color)
+	date := MakeJsonField("date", comment.Date)
+	reply := MakeJsonField("reply", comment.Reply)
 
-	strFmt := fmt.Sprintf(",\n  {\n%s%s  }\n]\n", strings.Repeat("    %s,\n", 3), "    %s\n")
+	strFmt := fmt.Sprintf(",\n  {\n%s%s  }\n]\n", strings.Repeat("    %s,\n", 5), "    %s\n")
 	offset := int64(-3)
 	if !append {
 		strFmt = "[" + strFmt[1:]
 		offset = 0
 	}
-	data := []byte(fmt.Sprintf(strFmt, id, author, text, color))
+	data := []byte(fmt.Sprintf(strFmt, id, author, text, color, date, reply))
 
 	lastBlockPath := fmt.Sprintf("%s%d.json", environment.CommentsBlocksFolderPath, config.LastBlock)
 	return git.GitAppendFileData(lastBlockPath, data, offset)
@@ -123,6 +104,7 @@ func addCommentAttempts(comment *Comment, attempt int) (*Comment, error) {
 	}
 
 	comment.ID = generateCommentID(comment, config)
+	comment.Date = GetCurrentDateUTCString()
 	err = writeComment(comment, config, lastBlockFileSize != 0)
 	if err != nil {
 		return nil, err

@@ -10,6 +10,8 @@ const (
 	GitUserName  = "commentator"
 	GitUserEmail = "commentator@example.com"
 
+	DateFormat = "2006-01-02 15:04:05"
+
 	CommentsFolderPath       = "data/comments/v1/"
 	CommentsConfigFilePath   = CommentsFolderPath + "config.json"
 	CommentsBlocksFolderPath = CommentsFolderPath + "blocks/"
